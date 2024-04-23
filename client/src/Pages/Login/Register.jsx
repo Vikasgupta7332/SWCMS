@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { Container, Typography } from '@mui/material';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { Container, Typography, Grid } from '@mui/material';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from "../../Components/Firebase/Firebase"
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Register = () => {
   const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
   });
@@ -23,39 +25,29 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if the user is already logged in
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        
-        // You can use React Router or another navigation method here
+    
         console.log('User is logged in:', user);
       } else {
-        // No user is logged in
         console.log('No user is logged in');
       }
     });
-
-    // Clean up the subscription when the component unmounts
     return () => unsubscribe();
   }, []);
 
   const handleSubmit = async(e) => {
     e.preventDefault();
-    console.log(formData); // You can perform your login logic here
+    console.log(formData);
 
     e.preventDefault();
     if (formData.email && formData.password) {
       try {
-        await signInWithEmailAndPassword(auth, formData.email, formData.password);
+        await createUserWithEmailAndPassword(auth, formData.email, formData.password);
           setFormData('');
           navigate("/");
-
-        // Clear the input fields
-        // Redirect to the home page or another page upon successful login/signup
-        // You can use React Router or another navigation method here
-        console.log('Successful login');
+        console.log('Successful Register');
       } catch (error) {
-        // Handle login/signup errors
         console.error('Error:', error.message);
         alert('invalid user');
       }
@@ -65,35 +57,39 @@ const Login = () => {
   };
 
   const handleClick = () =>{
-    navigate("/register");
+    navigate("/login");
   }
 
   return (
     <Container maxWidth="sm" style={{display:"flex",justifyContent:"center",alignIterm:'center',flexDirection:"column",height:"100vh"}}>
       <Typography variant="h4" align="center" gutterBottom>
-        Login
+        Register
       </Typography>
       <form onSubmit={handleSubmit}>
-        <TextField
-          name="email"
-          label="Email"
-          type="email"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formData.email}
-          onChange={handleChange}
-        />
-        <TextField
-          name="password"
-          label="Password"
-          type="password"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formData.password}
-          onChange={handleChange}
-        />
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField
+              name="email"
+              label="Email"
+              type="email"
+              variant="outlined"
+              fullWidth
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="password"
+              label="Password"
+              type="password"
+              variant="outlined"
+              fullWidth
+              value={formData.password}
+              onChange={handleChange}
+            />
+          </Grid>
+        </Grid>
         <Button
           type="submit"
           variant="contained"
@@ -101,7 +97,7 @@ const Login = () => {
           fullWidth
           style={{ marginTop: '1rem' }}
         >
-          Login
+          Register
         </Button>
       </form>
       <Button
@@ -112,10 +108,10 @@ const Login = () => {
           style={{ marginTop: '1rem' }}
           onClick={handleClick}
         >
-          Register
+          Login
         </Button>
     </Container>
   );
 };
 
-export default Login;
+export default Register;
